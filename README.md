@@ -89,9 +89,9 @@ Test data is centralized in `test_data.json` and includes:
 
 ## Running Tests
 
-### Basic Test Execution
+### UI Test Execution
 ```bash
-pytest
+pytest --alluredir=allure-results Tests/login/test_logout.py::TestLogout Tests/login/test_login.py::TestLogin
 ```
 ### Browser-Specific Execution
 Run tests on specific browsers:
@@ -124,7 +124,6 @@ allure serve allure-results
 
 ### API Tests
 - **Authentication API**: Login/logout endpoints
-- **Products API**: CRUD operations for products
 
 ## Reporting
 
