@@ -1,0 +1,11 @@
+{
+    "common_info": {
+        "Url": "https://cm2-qa-shore.thinkpalm.info",
+        "ValidUserName": "cm2tpadmin",
+        "ValidPassword": "cmSquare!#2025",
+        "LockedUserName": "locked_out_user",
+        "LockedPassword": "secret_sauce",
+        "InvalidUserName": "cm2tpadmin1",
+        "InvalidPassword": "testing"
+    }
+}
