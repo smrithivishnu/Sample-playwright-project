@@ -6,6 +6,29 @@
         "LockedUserName": "locked_out_user",
         "LockedPassword": "secret_sauce",
         "InvalidUserName": "cm2tpadmin1",
-        "InvalidPassword": "testing"
+        "InvalidPassword": "testing",
+        "MwToken": "WW-CM2-DEV-019218af-8143-7083-af3d-50431eb4a762"
+    },
+    "vessel_data": {
+        "IMO_NO": 9490313,
+        "VIP_VSL_NAME": "AMAGI GALAXY",
+        "VIP_VSL_CODE": "AMA",
+        "VIP_VOYAGE_STATUS": "Commenced"
+    },
+    "new_vessel_data": {
+        "IMO_NO": 9970600,
+        "VIP_VSL_NAME": "BONITA ANA",
+        "VIP_VSL_CODE": "ANAX"
+    },
+    "port_functions": {
+        "first_port_function": "C",
+        "available_functions": ["C", "M", "F", "P", "O", "T", "R", "I", "Y", "Z", "W", "L", "D"]
+    },
+    "email_data": {
+        "VIP_OPS_COORDINATOR_EMAIL": "smrithi.m@thinkpalm.com",
+        "VIP_USER_GROUP_EMAIL": "smrithi.m@thinkpalm.com"
+    },
+    "voyage_config": {
+        "port_count": 6
     }
 }

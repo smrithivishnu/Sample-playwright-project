@@ -16,10 +16,23 @@ class SmartActions:
             page_content = self.page.content()
             page_url = self.page.url
             
+            # Extract only body content to reduce prompt size
+            import re
+            body_match = re.search(r'<body[^>]*>(.*?)</body>', page_content, re.DOTALL | re.IGNORECASE)
+            if body_match:
+                page_content = body_match.group(1)
+            else:
+                # Fallback to full content if body tag not found
+                page_content = page_content
+            
             # Take a screenshot for visual context
             screenshot = self.page.screenshot()
             
-            # Create the prompt for Mistral
+            # Create a more focused prompt for Mistral
+            # Get only relevant parts of the page content (limit size)
+            if len(page_content) > 10000:  # Limit to 10k characters
+                page_content = page_content[:10000] + "..."
+            
             prompt = f"""
             You are an AI assistant helping to heal a failed web element selector.
             
@@ -27,32 +40,25 @@ class SmartActions:
             Current page URL: {page_url}
             
             HTML Content (truncated):
-            {page_content[:2000]}...
+            {page_content}
             
-            Task:
-            1. Analyze the page content to understand what elements are available
-            2. Find the element that matches the intent of the failed selector
-            3. Generate a new CSS selector or XPath that will work
-            4. Explain what happened to the original element
+            Task: Find the element that matches the failed selector intent.
+            Priority order: 1. id 2. name 3. aria-label 4. button text
             
-            Response format (JSON):
-            {{
-                "analysis": "What happened to the original element",
-                "new_selector": "CSS selector or XPath for the corrected element",
-                "confidence": 0.9,
-                "explanation": "Why this selector should work"
-            }}
+            Return ONLY a valid CSS selector or XPath. No explanations.
+            Examples: "button[type='submit']", "button:has-text('Submit')", "#submit-btn"
             """
-            
-            # Call Ollama API - Use WSL-compatible endpoint with faster timeout
+            print(f"Prompt: {prompt}")
+
+            # Call Ollama API - Use faster model with lower timeout
             response = requests.post(
-                'http://localhost:11434/api/generate',
+                'http://172.27.13.150:11434/api/generate',
                 json={
-                    'model': 'mistral',
+                    'model': 'llama3:8b',  # Use faster model
                     'prompt': prompt,
                     'stream': False
                 },
-                timeout=120  # Further increased timeout for WSL
+                timeout=120  # Reduced timeout for faster response
             )
             print("=========== full resp===============")
             print(response.json())
@@ -126,10 +132,25 @@ class SmartActions:
             locator.wait_for(state="visible")
             return locator
         except Exception:
-            healed = AIEngine.heal_locator(self.page, selector)
-
-            print(f"[AI] Using healed selector: {healed}")
-
-            locator = self.page.locator(healed)
-            locator.wait_for(state="visible")
-            return locator
+            print(f"[SmartActions] Original selector failed: {selector}")
+            
+            # Try with Mistral AI
+            mistral_healed = self.heal_with_mistral(selector)
+            if mistral_healed:
+                try:
+                    print(f"[SmartActions] Trying Mistral AI healed selector: {mistral_healed}")
+                    locator = self.page.locator(mistral_healed)
+                    locator.wait_for(state="visible")
+                    print(f"[SmartActions] Successfully located using Mistral AI selector!")
+                    return locator
+                except Exception as e:
+                    print(f"[SmartActions] Mistral AI selector failed: {str(e)}")
+            
+            # Fallback to original AI engine
+            # print(f"[SmartActions] Falling back to traditional AI healing...")
+            # healed = AIEngine.heal_locator(self.page, selector)
+            # print(f"[SmartActions] Using traditional AI healed selector: {healed}")
+            
+            # locator = self.page.locator(healed)
+            # locator.wait_for(state="visible")
+            # return locator
