@@ -1,9 +1,22 @@
-playwright==1.48.0
+# Core Testing Framework
 pytest==8.3.3
 pytest-html==4.1.1
-pytest-playwright==0.5.0
 pytest-xdist==3.6.1
-allure-pytest==2.13.5
 pytest-order==1.2.1
+
+# Playwright Dependencies
+playwright==1.48.0
+pytest-playwright==0.5.0
+
+# Reporting
+allure-pytest==2.13.5
+
+# Data Processing
 pandas==2.2.2
 openpyxl==3.1.5
+
+# HTTP Requests
+requests==2.32.5
+
+# Built-in modules (no installation needed)
+# uuid, random, string, json, os, datetime, re, base64, difflib
