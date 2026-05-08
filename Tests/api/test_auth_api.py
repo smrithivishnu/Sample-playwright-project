@@ -21,9 +21,16 @@ class TestAPI(BaseTest):
         response = api_client.login(creds["username"], base64.b64encode(creds["password"].encode()).decode())
         assert response.status_code == 200
        
-        AuthAPI.log_response(response)
-        token = response.json()["jwtToken"]
-        api_client.client.set_token(token)
+        # Parse JSON response once to avoid consuming the stream twice
+        try:
+            response_json = response.json()
+            AuthAPI.log_response(response)
+            token = response_json["jwtToken"]
+            api_client.client.set_token(token)
+        except Exception as e:
+            print(f"Error parsing login response: {e}")
+            print(f"Response text: {response.text}")
+            raise
         return response
     
     @allure.step("Bunker Consumption Vessel wise via API")

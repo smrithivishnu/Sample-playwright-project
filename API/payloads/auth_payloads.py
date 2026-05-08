@@ -32,12 +32,31 @@ class AuthPayloads:
         Get multiple random ports from Excel file without duplicates
         Returns list of port data dictionaries
         """
+        import time
+        
         all_ports = read_port_list_excel()
         if len(all_ports) < count:
             count = len(all_ports)
         
-        # Randomly select unique ports
-        selected_ports = random.sample(all_ports, count)
+        # Debug: Print available ports and selection info
+        print(f"DEBUG: Available ports: {len(all_ports)}")
+        print(f"DEBUG: Requested ports: {count}")
+        
+        # Ensure we have enough different ports
+        if len(all_ports) < count:
+            count = len(all_ports)
+        
+        # Shuffle the ports list to ensure randomness
+        random.shuffle(all_ports)
+        
+        # Take the first 'count' ports after shuffling
+        selected_ports = all_ports[:count]
+        
+        # Debug: Print selected ports
+        print(f"DEBUG: Actually selected ports:")
+        for i, port in enumerate(selected_ports):
+            print(f"  Selected {i+1}: {port['VIP_EXT_REF']} - {port['VIP_PORT_NAME']}")
+        
         return selected_ports
 
     @staticmethod
@@ -48,9 +67,9 @@ class AuthPayloads:
         SA can be many, only one AR, .. can be many
         Before AR only SA will be there, after AR only .. will be there
         """
-        # If no AR position specified, randomly choose one (not first port)
+        # If no AR position specified, use position 2 for consistent sequence
         if ar_position is None:
-            ar_position = random.randint(1, 4)  # Random position for AR (not first)
+            ar_position = 2  # Fixed position for AR (3rd port: index 2)
         
         if port_index == ar_position:
             # This is the one AR port
@@ -236,6 +255,11 @@ class AuthPayloads:
         # Get random ports
         selected_ports = AuthPayloads.get_multiple_random_ports(port_count)
         
+        # Debug: Print selected ports to verify they're different
+        print(f"DEBUG: Selected {len(selected_ports)} ports:")
+        for i, port in enumerate(selected_ports):
+            print(f"  Port {i+1}: {port['VIP_EXT_REF']} - {port['VIP_PORT_NAME']}")
+        
         # Generate one AR position for the entire payload to ensure only one AR
         ar_position = random.randint(1, 3)  # Random position for AR (not first)
         
@@ -250,6 +274,9 @@ class AuthPayloads:
         for i, port_data in enumerate(selected_ports):
             port_order = (i + 1) * 100  # 100, 200, 300...
             port_function = AuthPayloads.get_port_function(i)
+            
+            # Debug: Print port data being used for this port block
+            print(f"DEBUG: Creating port block {i+1} with port data: {port_data['VIP_EXT_REF']} - {port_data['VIP_PORT_NAME']}")
             
             # Calculate dates (each port 5-10 days apart)
             if i == 0:
@@ -338,14 +365,14 @@ class AuthPayloads:
                     arrival_departure_status=AuthPayloads.get_arrival_departure_status(i, ar_position)
                 )
             else:
-                # Other ports - use same port data as first port
+                # Other ports - use their own port data
                 port_block = AuthPayloads.generate_port_block(
                     imo_no=imo_no,
                     vsl_name=vsl_name,
                     vsl_code=vsl_code,
                     voyage_no=voyage_no,
                     voyage_status=voyage_status,
-                    port_data=selected_ports[0],  # Use same port data as first port
+                    port_data=port_data,  # Use each port's own data
                     port_order=port_order,
                     arrival_local=arrival_date.strftime("%Y-%m-%dT%H:%M:%S"),
                     departure_local=departure_date.strftime("%Y-%m-%dT%H:%M:%S"),

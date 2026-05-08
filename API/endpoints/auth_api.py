@@ -19,13 +19,15 @@ class AuthAPI:
         print("\n--- API RESPONSE ---")
         print("Status:", response.status_code)
         try:
-            print(json.dumps(response.json(), indent=4))
+            response_json = response.json()
+            print(json.dumps(response_json, indent=4))
             allure.attach(
-            json.dumps(response.json(), indent=4),
+            json.dumps(response_json, indent=4),
             name="API Response",
             attachment_type=allure.attachment_type.JSON
             )
-        except:
+        except Exception as e:
+            print(f"Could not parse JSON response: {e}")
             print(response.text)
 
     def log_request(self, method, endpoint, headers=None, json_data=None):
@@ -57,9 +59,9 @@ class AuthAPI:
     def voyage_itinerary(self, imo, vesselname, vesselcode, voyagestatus, payload=None):
         """Voyage Itinerary API with middleware token"""
         endpoint = "/api/master/middleware/v1/voyageItinerary"
-        if(payload is None):
-            # Create payload with vessel data
-            payload = AuthPayloads.voyage_itinerary_payload(imo, vesselname, vesselcode, voyagestatus)
+        # if(payload is None):
+        #     # Create payload with vessel data
+        #     payload = AuthPayloads.voyage_itinerary_payload(imo, vesselname, vesselcode, voyagestatus)
         
         # Log request details
         self.log_request("POST", endpoint, json_data=payload)

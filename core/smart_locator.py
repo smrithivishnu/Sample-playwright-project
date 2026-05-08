@@ -60,21 +60,27 @@ class SmartActions:
                 },
                 timeout=120  # Reduced timeout for faster response
             )
-            print("=========== full resp===============")
-            print(response.json())
-            print("=========== full resp===============")
-            if response.status_code == 200:
-                result = response.json()
-                ai_response = json.loads(result['response'])
-                
-                print(f"[Mistral AI] Analysis: {ai_response.get('analysis', 'No analysis provided')}")
-                print(f"[Mistral AI] New selector: {ai_response.get('new_selector', 'No selector generated')}")
-                print(f"[Mistral AI] Confidence: {ai_response.get('confidence', 0)}")
-                print(f"[Mistral AI] Explanation: {ai_response.get('explanation', 'No explanation provided')}")
-                
-                return ai_response.get('new_selector')
-            else:
-                print(f"[Mistral AI] API call failed: {response.status_code}")
+        
+            try:
+                response_json = response.json()
+                print(response_json)
+                print("=========== full resp===============")
+                if response.status_code == 200:
+                    result = response_json
+                    ai_response = json.loads(result['response'])
+                    
+                    print(f"[Mistral AI] Analysis: {ai_response.get('analysis', 'No analysis provided')}")
+                    print(f"[Mistral AI] New selector: {ai_response.get('new_selector', 'No selector generated')}")
+                    print(f"[Mistral AI] Confidence: {ai_response.get('confidence', 0)}")
+                    print(f"[Mistral AI] Explanation: {ai_response.get('explanation', 'No explanation provided')}")
+                    
+                    return ai_response.get('new_selector')
+                else:
+                    print(f"[Mistral AI] API call failed: {response.status_code}")
+                    return None
+            except Exception as e:
+                print(f"Error parsing JSON response: {e}")
+                print(f"Response text: {response.text}")
                 return None
                 
         except Exception as e:

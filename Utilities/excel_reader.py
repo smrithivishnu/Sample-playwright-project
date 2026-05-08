@@ -22,26 +22,56 @@ def read_port_list_excel():
             project_root = os.path.dirname(current_dir)
             excel_file = os.path.join(project_root, "PortList.xlsx")
             
+            # Verify file exists
+            if not os.path.exists(excel_file):
+                print(f"PortList.xlsx not found at {excel_file}. Using fallback data.")
+                return get_fallback_ports()
+            
             # Read Excel file using openpyxl
-            workbook = openpyxl.load_workbook(excel_file)
+            workbook = openpyxl.load_workbook(excel_file, data_only=True)
             sheet = workbook.active
+            
+            if not sheet:
+                print("No active sheet found in Excel file. Using fallback data.")
+                workbook.close()
+                return get_fallback_ports()
             
             # Read data rows
             ports = []
-            for row in sheet.iter_rows(min_row=2, values_only=True):
-                if len(row) >= 4 and row[1] and row[2]:  # Check if we have Port Name, Port Code, and Country
-                    # Map Excel columns to expected field names
-                    # Based on Excel structure: column 0=None, column 1=Port Name, column 2=Port Code, column 3=Country
-                    port_dict = {
-                        "VIP_EXT_REF": row[2] if row[2] else "",  # Port Code (column 2) -> VIP_EXT_REF
-                        "VIP_PORT_NAME": row[1] if row[1] else "",  # Port Name (column 1) -> VIP_PORT_NAME
-                        "VIP_PORT_COUNTRY": row[3] if row[3] else ""  # Country (column 3) -> VIP_PORT_COUNTRY
-                    }
-                    ports.append(port_dict)
+            max_row = sheet.max_row
+            print(f"Reading ports from Excel file: {excel_file} (rows: {max_row})")
+            
+            for row_idx, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
+                # Ensure row has enough columns and required data exists
+                if not row or len(row) < 3:  # Need at least 3 columns for port name, code, country
+                    continue
+                
+                port_name = row[1]  # Column B - Port Name
+                port_code = row[2]  # Column C - Port Code  
+                port_country = row[3] if len(row) > 3 else ""  # Column D - Country
+                
+                # Skip rows with missing critical data
+                if not port_code or not port_name:
+                    continue
+                
+                # Skip empty strings after stripping
+                port_name = str(port_name).strip() if port_name else ""
+                port_code = str(port_code).strip() if port_code else ""
+                port_country = str(port_country).strip() if port_country else ""
+                
+                if not port_code or not port_name:
+                    continue
+                
+                port_dict = {
+                    "VIP_EXT_REF": port_code,
+                    "VIP_PORT_NAME": port_name,
+                    "VIP_PORT_COUNTRY": port_country
+                }
+                ports.append(port_dict)
             
             workbook.close()
-            print(f"Successfully read {len(ports)} ports from {excel_file}")
-            return ports
+            print(f"Successfully read {len(ports)} ports from Excel")
+            return ports if ports else get_fallback_ports()
             
         except FileNotFoundError:
             print(f"PortList.xlsx file not found. Using fallback data.")
@@ -89,6 +119,8 @@ def get_random_port():
     Get one random port from PortList.xlsx or fallback data
     Returns dictionary with port data
     """
+    import time
+    
     all_ports = read_port_list_excel()
     
     if not all_ports:
@@ -98,6 +130,10 @@ def get_random_port():
             "VIP_PORT_NAME": "AMSTERDAM", 
             "VIP_PORT_COUNTRY": "NETHERLANDS"
         }
+    
+    # Use time-based seed for better randomness
+    current_time = int(time.time() * 1000)
+    random.seed(current_time)
     
     # Randomly select one port
     selected_port = random.choice(all_ports)
