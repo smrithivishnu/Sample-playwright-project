@@ -2,7 +2,7 @@ from playwright.sync_api import Page, Locator
 from Pages.base_page import BasePage
 
 
-class ProductsListPage(BasePage):
+class Dashboard(BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self._selectors = self._Selectors()

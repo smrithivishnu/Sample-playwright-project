@@ -1,7 +1,7 @@
 import allure
 
 from Pages.Login.login_page import LoginPage
-from Pages.Products.products_list_page import ProductsListPage
+from Pages.Dashboard.dashboard import Dashboard
 from Tests.login.test_logout import TestLogout
 from Tests.test_base import BaseTest
 from Utilities.test_data_manager import TestDataManager
@@ -73,7 +73,7 @@ class TestLogin(BaseTest):
         # Verify that the user is navigated to the Dashboard page
         expect(self.login_page.user_profile()).to_be_visible()
         # Click on the burger menu and log out
-        products_page = ProductsListPage(setup)
+        products_page = Dashboard(setup)
         products_page.click_burger_menu()
         products_page.click_logout()
         
@@ -96,7 +96,7 @@ class TestLogin(BaseTest):
         # Verify that the user is navigated to the Dashboard page
         expect(self.login_page.user_profile()).to_be_visible()
         # Click on the burger menu and log out
-        products_page = ProductsListPage(setup)
+        products_page = Dashboard(setup)
         products_page.click_burger_menu()
         products_page.click_logout()
         
@@ -120,7 +120,7 @@ class TestLogin(BaseTest):
         expect(self.login_page.user_profile()).to_be_visible()
         
        # Click on the burger menu and log out
-        products_page = ProductsListPage(setup)
+        products_page = Dashboard(setup)
         products_page.click_burger_menu()
         products_page.click_logout()
         
@@ -143,7 +143,7 @@ class TestLogin(BaseTest):
         # Verify that the user is navigated to the Dashboard page
         expect(self.login_page.user_profile()).to_be_visible()
         # Click on the burger menu and log out
-        products_page = ProductsListPage(setup)
+        products_page = Dashboard(setup)
         products_page.click_burger_menu()
         products_page.click_logout()
    

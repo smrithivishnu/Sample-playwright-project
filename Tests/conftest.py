@@ -6,7 +6,7 @@ from Pages.Login.login_page import LoginPage
 from Utilities.read_config import AppConfiguration
 from Utilities.test_data_manager import TestDataManager
 from playwright.sync_api import sync_playwright
-from Pages.Products.products_list_page import ProductsListPage
+from Pages.Dashboard.dashboard import Dashboard
 from API.endpoints.auth_api import AuthAPI
 
 
@@ -47,6 +47,9 @@ def setup(request, setup_browser):
     page = context.new_page()
 
     page.goto(base_url)
+    
+    # Store playwright instance on the page object for later use
+    page._playwright = playwright
    
     request.session.page = page
 
@@ -106,14 +109,14 @@ def pytest_runtest_makereport(item, call):
                 pass
 
 @pytest.fixture(scope="session")
-def login(request, setup) -> ProductsListPage:
+def login(request, setup) -> Dashboard:
     test_data = TestDataManager.get_common_info()
 
     username = test_data["ValidUserName"]
     password = test_data["ValidPassword"]
     login = LoginPage(setup)
     login.login_to_application(username, password)
-    return ProductsListPage(setup)
+    return Dashboard(setup)
 
 
 def pytest_addoption(parser):

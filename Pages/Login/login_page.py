@@ -1,6 +1,6 @@
 from playwright.sync_api import Page, Locator
 
-from Pages.Products.products_list_page import ProductsListPage
+from Pages.Dashboard.dashboard import Dashboard
 from Pages.base_page import BasePage
 
 
@@ -29,12 +29,12 @@ class LoginPage(BasePage):
     def click_loginMainPage(self):
         self.ai.click(self._selectors.LOGIN_BACKBUTTON)
 
-    def login_to_application(self, username: str, password: str) -> ProductsListPage:
+    def login_to_application(self, username: str, password: str) -> Dashboard:
         self.click_externallogin()
         self.set_username(username)
         self.set_password(password)
         self.click_login()
-        return ProductsListPage(self.current_page)
+        return Dashboard(self.current_page)
 
     def get_error_locator(self) -> Locator:
         return self.ai.locator(self._selectors.ERROR_MSG)
@@ -48,7 +48,7 @@ class LoginPage(BasePage):
         LOGIN_BUTTON = "button[label='Submit']"
         EXTERNALUSER_BUTTON = "button:has-text('Login as External User')"
         LOGIN_BACKBUTTON = "a.back-nav:has-text('Back to previous page')"
-        ERROR_MSG = "div.p-toast-detail:has-text('Bad credentials')"
+        ERROR_MSG = ".p-toast-detail:has-text('Bad credentials')"
 
 
 

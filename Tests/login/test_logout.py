@@ -12,11 +12,11 @@ class TestLogout(BaseTest):
         :param login: pass login fixture for login into application
         """
         test_data = TestDataManager.get_common_info()
-        self.product_page = login
+        self.dashboard = login
 
         # Click on the burger menu and log out
-        self.product_page.click_burger_menu()
-        self.login_page = self.product_page.click_logout()
+        self.dashboard.click_burger_menu()
+        self.login_page = self.dashboard.click_logout()
 
         # Verify the login button is visible on the login page
         expect(self.login_page.get_login_button_locator()).to_be_visible()
