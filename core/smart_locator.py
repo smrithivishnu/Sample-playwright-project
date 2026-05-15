@@ -1,6 +1,37 @@
 import json
 import requests
 from core.ai_engine import AIEngine
+from bs4 import BeautifulSoup, Comment
+
+def clean_html(html):
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Remove HTML comments
+    for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
+        comment.extract()
+
+    # Remove SVG elements that are not useful for selector healing
+    for svg_tag in ["path", "circle", "clipPath"]:
+        for tag in soup.find_all(svg_tag):
+            tag.decompose()
+
+    for tag in soup.find_all(True):
+
+        attrs_to_remove = []
+
+        for attr in tag.attrs:
+            if (
+                attr.startswith("_ngcontent")
+                or attr.startswith("_nghost")
+                or attr == "style"
+                or attr == "clip-path"
+            ):
+                attrs_to_remove.append(attr)
+
+        for attr in attrs_to_remove:
+            del tag.attrs[attr]
+
+    return str(soup)
 
 class SmartActions:
     
@@ -23,21 +54,18 @@ class SmartActions:
             # Get page content and current state
             page_content = page.content()
             page_url = page.url
-            
+
             # Extract only body content to reduce prompt size
             import re
             body_match = re.search(r'<body[^>]*>(.*?)</body>', page_content, re.DOTALL | re.IGNORECASE)
             if body_match:
-                body_content = body_match.group(1)
-                # Extract only main tag content within body
-                main_match = re.search(r'<main[^>]*>(.*?)</main>', body_content, re.DOTALL | re.IGNORECASE)
-                if main_match:
-                    page_content = main_match.group(1)
-                else:
-                    page_content = body_content
+                page_content = body_match.group(1)
             else:
                 # Fallback to full content if body tag not found
                 page_content = page_content
+            
+            # Clean the HTML to remove unnecessary attributes
+            page_content = clean_html(page_content)
             
             # Take a screenshot for visual context
             screenshot = page.screenshot()
@@ -195,6 +223,45 @@ class SmartActions:
             locator = page.locator(healed)
             locator.wait_for(state="visible")
             return locator
+
+    def locatorMultipleElements(self, selector1, selector2=None):
+        """
+        Get multiple elements as a list.
+        If selector2 is provided, returns nested elements from selector1.
+        If selector2 is None, returns all elements matching selector1.
+        
+        Args:
+            selector1: Primary selector to find parent elements
+            selector2: Optional nested selector within each element
+            
+        Returns:
+            List of inner text from matched elements
+        """
+        try:
+            page = self._get_page()
+            locator = page.locator(selector1)
+            elements_list = []
+            
+            for i in range(locator.count()):
+                try:
+                    if selector2:
+                        # Get nested element
+                        nested_element = locator.nth(i).locator(selector2).first
+                        text = nested_element.inner_text()
+                    else:
+                        # Get element directly
+                        text = locator.nth(i).inner_text()
+                    
+                    elements_list.append(text)
+                    print(f"[SmartActions] Element {i}: {text}")
+                except Exception as e:
+                    print(f"[SmartActions] Failed to extract element {i}: {str(e)}")
+            
+            print(f"[SmartActions] Extracted {len(elements_list)} elements")
+            return elements_list
+        except Exception as e:
+            print(f"[SmartActions] Error in locatorMultipleElements: {str(e)}")
+            return []
 
     def is_visible(self, selector):
         """
