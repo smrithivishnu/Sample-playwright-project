@@ -6,6 +6,7 @@ from Pages.Login.login_page import LoginPage
 from Utilities.read_config import AppConfiguration
 from Utilities.test_data_manager import TestDataManager
 from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 from Pages.Dashboard.dashboard import Dashboard
 from API.endpoints.auth_api import AuthAPI
 
@@ -111,18 +112,57 @@ def pytest_runtest_makereport(item, call):
 @pytest.fixture(scope="session")
 def login(request, setup) -> Dashboard:
     test_data = TestDataManager.get_common_info()
-
+    
     username = test_data["ValidUserName"]
     password = test_data["ValidPassword"]
     login = LoginPage(setup)
+    login.click_externallogin()
     login.login_to_application(username, password)
     return Dashboard(setup)
+
+
+@pytest.fixture(scope="function")
+def vessel_login(request, setup):
+    """
+    Fixture to create a separate browser context for vessel login using existing playwright instance
+    """
+    test_data = TestDataManager.get_test_data()
+    vessel_data = test_data.get("vessel_instance", {})
+    
+    vessel_url = vessel_data.get("Url")
+    vessel_username = vessel_data.get("ValidUserName")
+    vessel_password = vessel_data.get("ValidPassword")
+    
+    # Reuse existing playwright instance from session
+    playwright = setup._playwright
+    browser = playwright.chromium.launch(headless=False)
+    
+    context = browser.new_context(no_viewport=True)
+    page = context.new_page()
+
+    page.goto(vessel_url)
+    page.wait_for_timeout(3000)
+    
+    # Store playwright instance on the page object for later use
+    page._playwright = playwright
+    page._browser = browser
+    page._context = context
+
+    # Login to vessel instance
+    login = LoginPage(page)
+    dashboard = login.login_to_application(vessel_username, vessel_password)
+    page.wait_for_timeout(5000)
+
+    yield page
+
+    # Cleanup
+    context.close()
+    browser.close()
 
 
 def pytest_addoption(parser):
     parser.addoption("--browser-name", action="store", default="chromium", help="Browser to run tests with (chromium, "
                                                                                 "firefox, webkit, edge)")
-
 
 @pytest.fixture(scope="session")
 def setup_browser(request):

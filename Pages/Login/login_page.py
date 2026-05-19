@@ -30,11 +30,17 @@ class LoginPage(BasePage):
         self.ai.click(self._selectors.LOGIN_BACKBUTTON)
 
     def login_to_application(self, username: str, password: str) -> Dashboard:
-        self.click_externallogin()
+        # self.click_externallogin()
         self.set_username(username)
         self.set_password(password)
         self.click_login()
         return Dashboard(self.current_page)
+
+    # def login_to_vessel_application(self, username: str, password: str) -> Dashboard:
+    #     self.set_username(username)
+    #     self.set_password(password)
+    #     self.click_login()
+    #     return Dashboard(self.current_page)
 
     def get_error_locator(self) -> Locator:
         return self.ai.locator(self._selectors.ERROR_MSG)

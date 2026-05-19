@@ -11,8 +11,8 @@
     },
     "vessel_data": {
         "IMO_NO": 9490313,
-        "VIP_VSL_NAME": "AMAGI GALAXY",
-        "VIP_VSL_CODE": "AMA",
+        "VIP_VSL_NAME": "MENUETT",
+        "VIP_VSL_CODE": "MEN",
         "VIP_VOYAGE_STATUS": "Commenced"
     },
     "new_vessel_data": {
@@ -30,5 +30,10 @@
     },
     "voyage_config": {
         "port_count": 6
+    },
+    "vessel_instance": {
+        "Url": "http://cm2-qa-ship-two.thinkpalm.info/",
+        "ValidUserName": "admin@men",
+        "ValidPassword": "Think@123456"
     }
 }

@@ -224,7 +224,7 @@ class SmartActions:
             locator.wait_for(state="visible")
             return locator
 
-    def locatorMultipleElements(self, selector1, selector2=None):
+    def locatorMultipleElements(self, selector1, selector2=None, selector3=None):
         """
         Get multiple elements as a list.
         If selector2 is provided, returns nested elements from selector1.
@@ -246,8 +246,14 @@ class SmartActions:
                 try:
                     if selector2:
                         # Get nested element
-                        nested_element = locator.nth(i).locator(selector2).first
-                        text = nested_element.inner_text()
+                        nested_element1 = locator.nth(i).locator(selector2).first
+                        text1 = nested_element1.inner_text()
+                        if selector3:
+                            nested_element2 = locator.nth(i).locator(selector3).first
+                            text2 = nested_element2.inner_text()
+                            text = f"{text1} - {text2}"
+                        else:
+                            text = text1
                     else:
                         # Get element directly
                         text = locator.nth(i).inner_text()

@@ -32,6 +32,7 @@ class TestLogin(BaseTest):
         creds = self.get_user_credentials("Invalid")
 
         # Perform login
+        self.login_page.click_externallogin()
         self.login_page.login_to_application(creds["username"], creds["password"])
 
         # Verify that the appropriate error message is displayed
@@ -51,6 +52,7 @@ class TestLogin(BaseTest):
         creds = self.get_user_credentials("Locked")
 
         # Perform login
+        self.login_page.click_externallogin()
         self.login_page.login_to_application(creds["username"], creds["password"])
 
         # Verify that the appropriate error message is displayed
@@ -68,6 +70,7 @@ class TestLogin(BaseTest):
         creds = self.get_user_credentials("Valid")
 
         # Perform login
+        self.login_page.click_externallogin()
         self.login_page.login_to_application(creds["username"], creds["password"])
 
         # Verify that the user is navigated to the Dashboard page
@@ -91,6 +94,7 @@ class TestLogin(BaseTest):
         lowercase_username = creds["username"].lower()
         
         # Perform login with lowercase username
+        self.login_page.click_externallogin()
         self.login_page.login_to_application(lowercase_username, creds["password"])
         
         # Verify that the user is navigated to the Dashboard page
@@ -114,6 +118,7 @@ class TestLogin(BaseTest):
         uppercase_username = creds["username"].upper()
         
         # Perform login with uppercase username
+        self.login_page.click_externallogin()
         self.login_page.login_to_application(uppercase_username, creds["password"])
         
         # Verify that the user is navigated to the Dashboard page
@@ -137,7 +142,8 @@ class TestLogin(BaseTest):
         # Convert username to mixed case (capitalize first letter, lowercase rest)
         mixedcase_username = creds["username"].capitalize()
         
-        # Perform login with mixed case username
+        # Perform login with mixed case username    
+        self.login_page.click_externallogin()
         self.login_page.login_to_application(mixedcase_username, creds["password"])
         
         # Verify that the user is navigated to the Dashboard page
